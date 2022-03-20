@@ -1,0 +1,77 @@
+{
+  "project_info": {
+    "project_number": "174859247827",
+    "firebase_url": "https://newbluetoothbus-default-rtdb.firebaseio.com",
+    "project_id": "newbluetoothbus",
+    "storage_bucket": "newbluetoothbus.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:174859247827:android:b0ca7f376522bfdd0f3426",
+        "android_client_info": {
+          "package_name": "com.example.bluetoothbus"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "174859247827-uk2d5mg38igimffmg938amtsq6f3k63e.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDzWAhFp1vKVIYkVL_9-pcWvvKrvGaHdjk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "174859247827-uk2d5mg38igimffmg938amtsq6f3k63e.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:174859247827:android:2a02949f25ed06fe0f3426",
+        "android_client_info": {
+          "package_name": "com.example.newbluetoothbus"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "174859247827-jnv2hppjreoegq7lcad4pg8hudtn6fvm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.newbluetoothbus",
+            "certificate_hash": "696da4e081e0766482f9aaedf3058a53b7f4306a"
+          }
+        },
+        {
+          "client_id": "174859247827-uk2d5mg38igimffmg938amtsq6f3k63e.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDzWAhFp1vKVIYkVL_9-pcWvvKrvGaHdjk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "174859247827-uk2d5mg38igimffmg938amtsq6f3k63e.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

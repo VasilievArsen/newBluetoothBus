@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">BluetoothBus</string>
+    <string name="busSearch">Пожалуйста, нажмите \"↻\"</string>
+</resources>
