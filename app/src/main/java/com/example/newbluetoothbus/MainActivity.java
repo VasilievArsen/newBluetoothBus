@@ -86,13 +86,12 @@ public class MainActivity extends AppCompatActivity {
                     AlertDialog dialog = builder.create();
                     dialog.show();
                 }
-                myRef.setValue("Hello");
+                myRef.setValue("Hello2");
 
                 myRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DataSnapshot> task) {
                         if (!task.isSuccessful()) {
-                            //Log.e("firebase", "Error getting data", task.getException());
                             showToast("oshibka");
                         }
                         else {
