@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity"
     android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
-    android:background="@color/silverscreen">
+    android:background="@color/LightBG">
 
     <TextView
         android:id="@+id/Paired"

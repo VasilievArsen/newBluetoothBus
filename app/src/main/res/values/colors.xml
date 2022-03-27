@@ -21,4 +21,9 @@
     <color name="berryMojito">#B6CACA</color>
     <color name="Avalon">#799B96</color>
     <color name="Thundercloud">#698589</color>
+    <color name="LightBG">#E7FAFA</color>
+    <color name="LightBG2">#D6EAE8</color>
+    <color name="LightBGfBtn">#BBDEE5</color>
+    <color name="ColorForStroke">#D1F0F6</color>
+    <color name="TXTcolor">#787976</color>
 </resources>

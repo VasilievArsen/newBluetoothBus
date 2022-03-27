@@ -7,7 +7,7 @@
     android:id="@+id/root_element"
     android:layout_height="match_parent"
     android:theme="@style/Theme.AppCompat.NoActionBar"
-    android:background="@color/silverscreen">
+    android:background="@color/LightBG">
 
     <Button
         android:id="@+id/BtnReg"
@@ -16,7 +16,9 @@
         android:layout_marginStart="144dp"
         android:layout_marginEnd="144dp"
         android:layout_marginBottom="28dp"
+        android:background="@drawable/windowforreg"
         android:text="Регистрация"
+        android:textColor="#787976"
         app:layout_constraintBottom_toTopOf="@+id/BtnAuth"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.506"
@@ -29,7 +31,9 @@
         android:layout_marginStart="144dp"
         android:layout_marginEnd="144dp"
         android:layout_marginBottom="104dp"
+        android:background="@drawable/windowforreg"
         android:text="Аутентификация"
+        android:textColor="#787976"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -41,7 +45,9 @@
         android:layout_marginStart="144dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="144dp"
-        android:text="войти анонимно"
+        android:background="@drawable/windowforreg"
+        android:text="Войти анонимно"
+        android:textColor="#787976"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/BtnAuth" />

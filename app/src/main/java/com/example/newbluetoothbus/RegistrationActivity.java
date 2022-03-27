@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -22,17 +21,21 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class RegistrationActivity extends AppCompatActivity {
-    Button BtnReg, BtnAuth, BtnEWA;
+    private Button BtnReg, BtnAuth, BtnEWA;
     private FirebaseAuth auth;
-    FirebaseDatabase db;
-    DatabaseReference users;
-    ConstraintLayout root;
-    private FirebaseAuth.AuthStateListener mAuthListener;
+    private FirebaseDatabase db;
+    private DatabaseReference users;
+    private DatabaseReference mDataBase;
+    private ConstraintLayout root;
+    private String USER_KEY = "User";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,38 +46,28 @@ public class RegistrationActivity extends AppCompatActivity {
         root = findViewById(R.id.root_element);
 
         auth = FirebaseAuth.getInstance();
-        db = FirebaseDatabase.getInstance("https://newbluetoothbus-default-rtdb.firebaseio.com/");
-        users = db.getReference();
-
-        BtnReg.setOnClickListener(new OnClickListener() {
+        db = FirebaseDatabase.getInstance("https://newbluetoothbus-default-rtdb.firebaseio.com");
+        users = db.getReference(USER_KEY);
+        mDataBase = FirebaseDatabase.getInstance("https://newbluetoothbus-default-rtdb.firebaseio.com").getReference(USER_KEY);
+        BtnReg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showRegisterWindow();
             }
         });
-        BtnAuth.setOnClickListener(new OnClickListener() {
+        BtnAuth.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showSignInWindow();
             }
         });
-        BtnEWA.setOnClickListener(new OnClickListener() {
+        BtnEWA.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(RegistrationActivity.this, MainActivity.class));
+                finish();
             }
         });
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if(user != null){
-
-                }else{
-
-                }
-            }
-        };
     }
 
     private void showSignInWindow() {
@@ -112,6 +105,18 @@ public class RegistrationActivity extends AppCompatActivity {
                             //Snackbar.make(root, "Пароль должен содержать 5 или более символов", Snackbar.LENGTH_SHORT).show();
                             return;
                         }
+                        mDataBase.addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                String val = dataSnapshot.getValue().toString();
+                                showToast("" + val);
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
                         auth.signInWithEmailAndPassword(email_auth.getText().toString(), password_auth.getText().toString())
                                 .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                                     @Override
@@ -138,6 +143,7 @@ public class RegistrationActivity extends AppCompatActivity {
         LayoutInflater inflater = LayoutInflater.from(this);
         View register_window = inflater.inflate(R.layout.register_window, null);
         dialog.setView(register_window);
+
 
         final EditText name = register_window.findViewById(R.id.inputName);
         final EditText email = register_window.findViewById(R.id.inputEmail);
@@ -171,26 +177,36 @@ public class RegistrationActivity extends AppCompatActivity {
                     //Snackbar.make(root, "Пароль может состоять минимум из 5 символов", Snackbar.LENGTH_SHORT).show();
                     return;
                 }
-                //Регистрация пользователя
-                auth.createUserWithEmailAndPassword(email.getText().toString(), password.getText().toString())
-                        .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
-                            @Override
-                            public void onSuccess(AuthResult authResult) {
-                                User user = new User();
-                                user.setEmail(email.getText().toString());
-                                user.setName(name.getText().toString());
-                                user.setPassword(password.getText().toString());
 
-                                users.child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                                        .setValue(user)
-                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void unused) {
-                                                Snackbar.make(root, "Пользователь добавлен", Snackbar.LENGTH_SHORT).show();
-                                            }
-                                        });
-                            }
-                        });
+                User newUser = new User();
+                newUser.setEmail(email.getText().toString());
+                newUser.setName(name.getText().toString());
+                newUser.setPassword(password.getText().toString());
+                //users.push().setValue(user);
+                showToast("Пользователь добавлен");
+                mDataBase.push().setValue(newUser);
+               // Регистрация пользователя
+//                auth.createUserWithEmailAndPassword(email.getText().toString(), password.getText().toString())
+//                        .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
+//                            @Override
+//                            public void onSuccess(AuthResult authResult) {
+//                                User user = new User();
+//                                user.setEmail(email.getText().toString());
+//                                user.setName(name.getText().toString());
+//                                user.setPassword(password.getText().toString());
+//                                users.push().setValue(user);
+//                                showToast("Пользователь добавлен");
+//
+////                                users.child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+////                                        .setValue(user)
+////                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+////                                            @Override
+////                                            public void onSuccess(Void unused) {
+////                                                Snackbar.make(root, "Пользователь добавлен", Snackbar.LENGTH_SHORT).show();
+////                                            }
+////                                        });
+//                            }
+//                        });
 
             }
         });
@@ -200,6 +216,33 @@ public class RegistrationActivity extends AppCompatActivity {
     }
     private void showToast(String msg) {
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+    }
+    @Override
+    public void onBackPressed() {
+        // super.onBackPressed();
+        openQuitDialog();
+    }
+
+    private void openQuitDialog() {
+        AlertDialog.Builder quitDialog = new AlertDialog.Builder(
+                RegistrationActivity.this);
+        quitDialog.setTitle("Вы уверены, что хотите выйти?");
+
+        quitDialog.setPositiveButton("Да", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
+            }
+        });
+
+        quitDialog.setNegativeButton("Нет", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // TODO Auto-generated method stub
+            }
+        });
+
+        quitDialog.show();
     }
 }
 
