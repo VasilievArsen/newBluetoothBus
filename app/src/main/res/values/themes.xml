@@ -2,10 +2,9 @@
     <!-- Base application theme. -->
     <style name="Theme.BluetoothBus" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">#AEADAD</item>
+        <item name="colorPrimary">@color/textcolor</item>
         <item name="colorPrimaryDark">#5D6268</item>
         <item name="colorAccent">#A2B0A8</item>
         <!-- Customize your theme here. -->
-        <item name = "windowNoTitle">true</item>
     </style>
 </resources>
