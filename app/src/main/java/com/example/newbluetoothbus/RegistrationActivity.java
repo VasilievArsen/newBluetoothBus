@@ -16,16 +16,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.example.newbluetoothbus.Models.User;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.snackbar.Snackbar;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 public class RegistrationActivity extends AppCompatActivity {
     private Button BtnReg, BtnAuth, BtnEWA;
@@ -44,11 +41,11 @@ public class RegistrationActivity extends AppCompatActivity {
         BtnAuth = findViewById(R.id.BtnAuth);
         BtnEWA = findViewById(R.id.enter_wout_auth);
         root = findViewById(R.id.root_element);
-
-        auth = FirebaseAuth.getInstance();
+        init();
         db = FirebaseDatabase.getInstance("https://newbluetoothbus-default-rtdb.firebaseio.com");
         users = db.getReference(USER_KEY);
         mDataBase = FirebaseDatabase.getInstance("https://newbluetoothbus-default-rtdb.firebaseio.com").getReference(USER_KEY);
+
         BtnReg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -68,6 +65,21 @@ public class RegistrationActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
+    @Override
+    protected void onStart(){
+        super.onStart();
+        FirebaseUser cUser = auth.getCurrentUser();
+        //updateUI(cUser);
+        if(cUser != null)
+        {
+            Toast.makeText(this, "User not null",Toast.LENGTH_SHORT).show();
+//            startActivity(new Intent(RegistrationActivity.this, MainActivity.class));
+//            finish();
+        }
+    }
+    private void init(){
+        auth = FirebaseAuth.getInstance();
     }
 
     private void showSignInWindow() {
@@ -93,43 +105,30 @@ public class RegistrationActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialogInterface, int i) {
                         if (TextUtils.isEmpty(email_auth.getText().toString())) {
                             showToast("Введите вашу электронную почту");
-                            //Snackbar.make(root, "Введите вашу электронную почту", Snackbar.LENGTH_SHORT).show();
                             return;
                         }
                         if (TextUtils.isEmpty(password_auth.getText().toString())) {
                             showToast("Введите пароль");
-                            //Snackbar.make(root, "Введите пароль", Snackbar.LENGTH_SHORT).show();
                             return;
-                        }else if(password_auth.getText().toString().length() < 5){
+                        } else if (password_auth.getText().toString().length() < 5) {
                             showToast("Пароль должен содержать 5 или более символов");
-                            //Snackbar.make(root, "Пароль должен содержать 5 или более символов", Snackbar.LENGTH_SHORT).show();
                             return;
                         }
-                        mDataBase.addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                String val = dataSnapshot.getValue().toString();
-                                showToast("" + val);
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
-                            }
-                        });
-                        auth.signInWithEmailAndPassword(email_auth.getText().toString(), password_auth.getText().toString())
-                                .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
-                                    @Override
-                                    public void onSuccess(AuthResult authResult) {
-                                        startActivity(new Intent(RegistrationActivity.this, MainActivity.class));
-                                        finish();
-                                    }
-                                }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Snackbar.make(root, "Ошибка авторизации" + e.getMessage(), Snackbar.LENGTH_SHORT).show();
-                            }
-                        });
+                        if (!TextUtils.isEmpty(email_auth.getText().toString()) && !TextUtils.isEmpty(password_auth.getText().toString())) {
+                            auth.signInWithEmailAndPassword(email_auth.getText().toString(), password_auth.getText().toString())
+                                    .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<AuthResult> task) {
+                                            if (task.isSuccessful()) {
+                                                showToast("Успех!");
+                                                startActivity(new Intent(RegistrationActivity.this, MainActivity.class));
+                                                finish();
+                                            } else {
+                                                showToast("Ошибка!");
+                                            }
+                                        }
+                                    });
+                        }
                     }
                 });
             dialog.show();
@@ -160,54 +159,40 @@ public class RegistrationActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialogInterface, int i) {
                 if(TextUtils.isEmpty(name.getText().toString())){
                     showToast("Введите ваше имя");
-                    //Snackbar.make(root, "Введите ваше имя", Snackbar.LENGTH_SHORT).show();
                     return;
                 }
                 if(TextUtils.isEmpty(email.getText().toString())){
                     showToast("Введите вашу электронную почту");
-                    //Snackbar.make(root, "Введите вашу электронную почту", Snackbar.LENGTH_SHORT).show();
                     return;
                 }
                 if(TextUtils.isEmpty(password.getText().toString())){
                     showToast("Введите пароль");
-                    //Snackbar.make(root, "Введите пароль", Snackbar.LENGTH_SHORT).show();
                     return;
                 }else if(password.getText().toString().length() < 5){
                     showToast("Пароль может состоять минимум из 5 символов");
-                    //Snackbar.make(root, "Пароль может состоять минимум из 5 символов", Snackbar.LENGTH_SHORT).show();
                     return;
                 }
+                if(!TextUtils.isEmpty(email.getText().toString()) && !TextUtils.isEmpty(password.getText().toString())){
+                    auth.createUserWithEmailAndPassword(email.getText().toString(),password.getText().toString())
+                            .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task) {
+                                    if(task.isSuccessful()){
+                                        User newUser = new User();
+                                        newUser.setEmail(email.getText().toString());
+                                        newUser.setName(name.getText().toString());
+                                        newUser.setPassword(password.getText().toString());
+                                        showToast("Пользователь добавлен");
+                                        mDataBase.push().setValue(newUser);
+                                        startActivity(new Intent(RegistrationActivity.this, MainActivity.class));
+                                        finish();
+                                    }else{
+                                        showToast("Ошибка!");
+                                    }
+                                }
+                            });
 
-                User newUser = new User();
-                newUser.setEmail(email.getText().toString());
-                newUser.setName(name.getText().toString());
-                newUser.setPassword(password.getText().toString());
-                //users.push().setValue(user);
-                showToast("Пользователь добавлен");
-                mDataBase.push().setValue(newUser);
-               // Регистрация пользователя
-//                auth.createUserWithEmailAndPassword(email.getText().toString(), password.getText().toString())
-//                        .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
-//                            @Override
-//                            public void onSuccess(AuthResult authResult) {
-//                                User user = new User();
-//                                user.setEmail(email.getText().toString());
-//                                user.setName(name.getText().toString());
-//                                user.setPassword(password.getText().toString());
-//                                users.push().setValue(user);
-//                                showToast("Пользователь добавлен");
-//
-////                                users.child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-////                                        .setValue(user)
-////                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-////                                            @Override
-////                                            public void onSuccess(Void unused) {
-////                                                Snackbar.make(root, "Пользователь добавлен", Snackbar.LENGTH_SHORT).show();
-////                                            }
-////                                        });
-//                            }
-//                        });
-
+                }
             }
         });
 
@@ -244,6 +229,7 @@ public class RegistrationActivity extends AppCompatActivity {
 
         quitDialog.show();
     }
+
 }
 
 

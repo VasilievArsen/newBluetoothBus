@@ -31,6 +31,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -186,6 +187,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
         menu.add(0,0,0,"Чеки");
+        menu.add(0,1,1, "Выйти с аккаунта");
         return super.onCreateOptionsMenu(menu);
     }
     @Override
@@ -194,12 +196,16 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, CheckActivity.class);
             startActivity(intent);
         }
+        if(item.getItemId() == 1){
+            FirebaseAuth.getInstance().signOut();
+            openQuitFADialog();
+        }
     return super.onOptionsItemSelected(item);
     }
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
+        //super.onBackPressed();
         openQuitDialog();
     }
 
@@ -224,6 +230,27 @@ public class MainActivity extends AppCompatActivity {
 
         quitDialog.show();
     }
+    private void openQuitFADialog(){
+        AlertDialog.Builder quitFADialog = new AlertDialog.Builder(
+                MainActivity.this);
+        quitFADialog.setTitle("Вы уверены, что хотите выйти с аккаунта?");
+        quitFADialog.setPositiveButton("Да", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                startActivity(new Intent(MainActivity.this, RegistrationActivity.class));
+                finish();
+            }
+        });
+        quitFADialog.setNegativeButton("Нет", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+
+        quitFADialog.show();
+    }
+
 
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         switch (requestCode) {
