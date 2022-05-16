@@ -23,6 +23,12 @@
         android:theme="@style/Theme.BluetoothBus"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".CardActivity"
+            android:exported="true" />
+        <activity
+            android:name=".MapActivity"
+            android:exported="true" />
+        <activity
             android:name=".CheckActivity"
             android:exported="false" />
         <activity

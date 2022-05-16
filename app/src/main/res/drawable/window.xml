@@ -5,7 +5,7 @@
             android:tintMode="multiply">
             <corners android:radius="35dp"/>
             <size android:width="200dp"/>
-            <solid android:color="@color/LightBGfBtn"/>
+            <solid android:color="@color/oldBus"/>
             <padding android:bottom="6dp"/>
             <stroke
                 android:width="1.5dp"

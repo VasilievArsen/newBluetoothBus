@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -17,12 +19,14 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.example.newbluetoothbus.Models.User;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
 
 public class RegistrationActivity extends AppCompatActivity {
     private Button BtnReg, BtnAuth, BtnEWA;
@@ -42,29 +46,35 @@ public class RegistrationActivity extends AppCompatActivity {
         BtnEWA = findViewById(R.id.enter_wout_auth);
         root = findViewById(R.id.root_element);
         init();
+        final Animation animAlpha = AnimationUtils.loadAnimation(this, R.anim.alpha);
         db = FirebaseDatabase.getInstance("https://newbluetoothbus-default-rtdb.firebaseio.com");
         users = db.getReference(USER_KEY);
         mDataBase = FirebaseDatabase.getInstance("https://newbluetoothbus-default-rtdb.firebaseio.com").getReference(USER_KEY);
 
         BtnReg.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View view) {
+                view.startAnimation(animAlpha);
                 showRegisterWindow();
             }
         });
         BtnAuth.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View view) {
+                view.startAnimation(animAlpha);
                 showSignInWindow();
             }
         });
         BtnEWA.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                view.startAnimation(animAlpha);
                 startActivity(new Intent(RegistrationActivity.this, MainActivity.class));
                 finish();
             }
         });
+
+
     }
     @Override
     protected void onStart(){
@@ -123,11 +133,14 @@ public class RegistrationActivity extends AppCompatActivity {
                                                 showToast("Успех!");
                                                 startActivity(new Intent(RegistrationActivity.this, MainActivity.class));
                                                 finish();
-                                            } else {
-                                                showToast("Ошибка!");
                                             }
                                         }
-                                    });
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    showToast("Ошибка" + e.getMessage());
+                                }
+                            });
                         }
                     }
                 });
@@ -186,11 +199,14 @@ public class RegistrationActivity extends AppCompatActivity {
                                         mDataBase.push().setValue(newUser);
                                         startActivity(new Intent(RegistrationActivity.this, MainActivity.class));
                                         finish();
-                                    }else{
-                                        showToast("Ошибка!");
                                     }
                                 }
-                            });
+                            }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            showToast("Ошибка: " + e.getMessage());
+                        }
+                    });
 
                 }
             }

@@ -26,4 +26,6 @@
     <color name="LightBGfBtn">#BBDEE5</color>
     <color name="ColorForStroke">#D1F0F6</color>
     <color name="TXTcolor">#787976</color>
+    <color name="FarawaySky">#8980C1</color>
+    <color name="oldBus">#ecedf1</color>
 </resources>

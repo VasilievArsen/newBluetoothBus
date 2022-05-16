@@ -4,6 +4,11 @@ buildscript {
         google()  // Google's Maven repository
         mavenCentral()
         jcenter()
+        maven {
+            url "http://maven.google.com/"
+            allowInsecureProtocol = true
+
+        }
 
     }
     dependencies {
@@ -27,7 +32,13 @@ allprojects {
             // Android JSC is installed from npm
             url("$rootDir/../node_modules/jsc-android/dist")
         }
-
+        maven {
+            url "http://maven.google.com/"
+            allowInsecureProtocol = true
+        }
+        maven {
+            url "https://jitpack.io"
+        }
         google()
         jcenter()
 
