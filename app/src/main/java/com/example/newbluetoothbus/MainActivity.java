@@ -34,11 +34,17 @@ import androidx.core.content.ContextCompat;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -52,19 +58,24 @@ public class MainActivity extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_FINE_LOCATION = 2;
     private String a;
     private static final int REQUEST_ENABLE_BT = 0;
-
+    private FirebaseAuth auth;
+    private FirebaseUser cUser;
     TextView ConnectionsWindow;
     Button BPay;
+    int x = 0;
     ImageButton BRefresh, BtnBT, BtnMap, BtnCard;
     private FirebaseAnalytics mFirebaseAnalytics;
     BluetoothAdapter mBlueAdapter;
+
     DatabaseReference rootRef = FirebaseDatabase.getInstance("https://newbluetoothbus-default-rtdb.firebaseio.com/").getReference();
-    DatabaseReference myRef = rootRef.child("World");
-    DatabaseReference myRef2 = rootRef.child("World");
+    DatabaseReference myRef = rootRef.child("Bus");
+    DatabaseReference myRef2 = rootRef.child("Check");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+        auth = FirebaseAuth.getInstance();
+        cUser = auth.getCurrentUser();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         final Animation animAlpha = AnimationUtils.loadAnimation(this, R.anim.alpha);
@@ -87,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
         BRefresh = findViewById(R.id.Refresh);
         BtnBT = findViewById(R.id.BtnBT);
         BtnMap = findViewById(R.id.BtnMap);
-        BtnCard= findViewById(R.id.BtnCard);
+        BtnCard = findViewById(R.id.BtnCard);
 
         if (ContextCompat.checkSelfPermission(getApplicationContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION)
@@ -102,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
         BtnCard.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, CardActivity.class );
+                Intent intent = new Intent(MainActivity.this, CardActivity.class);
                 startActivity(intent);
             }
         });
@@ -110,30 +121,49 @@ public class MainActivity extends AppCompatActivity {
         BtnMap.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, MapActivity.class );
+                Intent intent = new Intent(MainActivity.this, MapActivity.class);
                 startActivity(intent);
             }
         });
+        // Текущее время
+        Date currentDate = new Date();
+        // Форматирование времени как "день.месяц.год"
+        DateFormat dateFormat = new SimpleDateFormat("dd:MM:yyyy", Locale.getDefault());
+        String dateText = dateFormat.format(currentDate);
+        // Форматирование времени как "часы:минуты:секунды"
+        DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+        String timeText = timeFormat.format(currentDate);
 
         BPay.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mBlueAdapter.isEnabled()) {
                     ValueEventListener eventListener = new ValueEventListener() {
+                        @SuppressLint("MissingPermission")
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                                String fbname = ds.getKey();
-                                Object fbmac = ds.getValue();
-                                String fbmacstring = String.valueOf(fbmac);
-                                if(ConnectionsWindow.getText().equals(fbmacstring)){
-                                    ConnectionsWindow.setTextSize(18);
-                                    openPayBuilder();
-                                }else{
-                                    showToast("Ошибка оплаты");
+                                String bnumber = ds.getKey();
+                                Object bmac = ds.getValue();
+                                String bmacstring = String.valueOf(bmac);
+                                if (ConnectionsWindow.getText().toString().contains(bmacstring)) {
+                                    if (cUser == auth.getCurrentUser()) {
+                                        rootRef.child("Check")
+                                                .child(String.valueOf(auth.getUid()))
+                                                .child(bnumber)
+                                                .child("Чек от " +dateText +", " +timeText )
+                                                .child("cost")
+                                                .setValue("33");
+
+                                        bluetoothLeScanner.stopScan(scanCallback);
+                                        ConnectionsWindow.setTextSize(24);
+                                        ConnectionsWindow.setText("Маршрут");
+                                        openPayBuilder();
+                                    }
                                 }
                             }
                         }
+
                         @Override
                         public void onCancelled(DatabaseError databaseError) {
                         }
@@ -151,8 +181,11 @@ public class MainActivity extends AppCompatActivity {
                 if (mBlueAdapter.isEnabled()) {
                     bluetoothLeScanner = mBlueAdapter.getBluetoothLeScanner();
                     bluetoothLeScanner.startScan(scanCallback);
-                    deviceFound = false;
-                }else {
+                    if(!deviceFound){
+                        ConnectionsWindow.setTextSize(24);
+                        ConnectionsWindow.setText("Маршрут");
+                    }
+                } else {
                     showToast("Включите Bluetooth");
                 }
             }
@@ -180,9 +213,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
     ScanCallback scanCallback = new ScanCallback() {
         @Override
-        public void onScanResult(int callbackType,ScanResult result) {
+        public void onScanResult(int callbackType, ScanResult result) {
             super.onScanResult(callbackType, result);
             final BluetoothDevice device = result.getDevice();
             final String s = device.getAddress();
@@ -191,16 +225,17 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                        String fbname = ds.getKey();
-                        Object fbmac = ds.getValue();
-                        String fbmacstring = String.valueOf(fbmac);
+                        String bnumber = ds.getKey();
+                        Object bmac = ds.getValue();
+                        String bmacstring = String.valueOf(bmac);
                         //showToast("" + s);
-                        if(s.equals(fbmacstring) && rssi <100) {
+                        if (s.equals(bmacstring) && rssi < 100) {
                             ConnectionsWindow.setTextSize(18);
-                            ConnectionsWindow.setText("Номер маршрута: " + fbname + "\n" + "маршрут: " + fbmacstring);
+                            ConnectionsWindow.setText("Номер маршрута: " + bnumber + "\n" + "маршрут: " + bmacstring);
                         }
                     }
                 }
+
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
                 }
@@ -210,28 +245,22 @@ public class MainActivity extends AppCompatActivity {
     };
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu){
-        menu.add(0,0,0,"Чеки");
-        menu.add(0,1,1, "Карта");
-        menu.add(0,2,2, "Выйти с аккаунта");
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menu.add(0, 0, 0, "Чеки");
+        menu.add(0, 1, 1, "Выйти с аккаунта");
         return super.onCreateOptionsMenu(menu);
     }
+
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == 0){
+        if (item.getItemId() == 0) {
             Intent intent = new Intent(this, CheckActivity.class);
             startActivity(intent);
         }
-        if(item.getItemId() == 1){
-            Intent intentm = new Intent(this, MapActivity.class);
-            startActivity(intentm);
-
-        }
-        if(item.getItemId() == 2){
-            FirebaseAuth.getInstance().signOut();
+        if (item.getItemId() == 1) {
             openQuitFADialog();
         }
-    return super.onOptionsItemSelected(item);
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -260,7 +289,8 @@ public class MainActivity extends AppCompatActivity {
 
         quitDialog.show();
     }
-    private void openQuitFADialog(){
+
+    private void openQuitFADialog() {
         AlertDialog.Builder quitFADialog = new AlertDialog.Builder(
                 MainActivity.this);
         quitFADialog.setTitle("Вы уверены, что хотите выйти с аккаунта?");
@@ -268,6 +298,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 startActivity(new Intent(MainActivity.this, RegistrationActivity.class));
+                auth.signOut();
                 finish();
             }
         });
@@ -280,15 +311,31 @@ public class MainActivity extends AppCompatActivity {
 
         quitFADialog.show();
     }
+
     private void openPayBuilder() {
         AlertDialog.Builder paymentDialog = new AlertDialog.Builder(
                 MainActivity.this);
         paymentDialog.setTitle("Оплата");
         paymentDialog.setMessage("Оплата произошла успешно.");
-        paymentDialog.setPositiveButton("Ок", null);
-        paymentDialog.setNegativeButton("Показать чек", null);
+        paymentDialog.setPositiveButton("Ок", new DialogInterface.OnClickListener() {
+            @SuppressLint("MissingPermission")
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                startActivity(getIntent());
+                finish();
+                overridePendingTransition(0, 0);
+            }
+        });
+        paymentDialog.setNegativeButton("Показать чек", new DialogInterface.OnClickListener() {
+            @SuppressLint("MissingPermission")
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                startActivity(new Intent(MainActivity.this, CheckActivity.class));
+            }
+        });
         paymentDialog.show();
     }
+
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         switch (requestCode) {
             case REQUEST_ENABLE_BT:
@@ -306,11 +353,12 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 
+    @SuppressLint("MissingPermission")
     protected void onStart() {
         super.onStart();
         if (mBlueAdapter.isEnabled()) {
             bluetoothLeScanner = mBlueAdapter.getBluetoothLeScanner();
-            //bluetoothLeScanner.startScan(scanCallback);
+            bluetoothLeScanner.startScan(scanCallback);
             deviceFound = false;
         } else {
             showToast("Включите Bluetooth");
@@ -320,6 +368,6 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("MissingPermission")
     protected void onDestroy() {
         super.onDestroy();
-        mBlueAdapter.disable();
+        //mBlueAdapter.disable();
     }
 }

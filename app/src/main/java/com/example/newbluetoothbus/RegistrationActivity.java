@@ -36,20 +36,19 @@ public class RegistrationActivity extends AppCompatActivity {
     private DatabaseReference mDataBase;
     private ConstraintLayout root;
     private String USER_KEY = "User";
-
+    FirebaseUser cUser;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.registrationactivity);
         BtnReg = findViewById(R.id.BtnReg);
         BtnAuth = findViewById(R.id.BtnAuth);
-        BtnEWA = findViewById(R.id.enter_wout_auth);
         root = findViewById(R.id.root_element);
-        init();
         final Animation animAlpha = AnimationUtils.loadAnimation(this, R.anim.alpha);
         db = FirebaseDatabase.getInstance("https://newbluetoothbus-default-rtdb.firebaseio.com");
         users = db.getReference(USER_KEY);
         mDataBase = FirebaseDatabase.getInstance("https://newbluetoothbus-default-rtdb.firebaseio.com").getReference(USER_KEY);
+        auth = FirebaseAuth.getInstance();
 
         BtnReg.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,31 +64,16 @@ public class RegistrationActivity extends AppCompatActivity {
                 showSignInWindow();
             }
         });
-        BtnEWA.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                view.startAnimation(animAlpha);
-                startActivity(new Intent(RegistrationActivity.this, MainActivity.class));
-                finish();
-            }
-        });
-
-
     }
     @Override
     protected void onStart(){
         super.onStart();
-        FirebaseUser cUser = auth.getCurrentUser();
-        //updateUI(cUser);
+        cUser = auth.getCurrentUser();
         if(cUser != null)
         {
-            Toast.makeText(this, "User not null",Toast.LENGTH_SHORT).show();
-//            startActivity(new Intent(RegistrationActivity.this, MainActivity.class));
-//            finish();
+            startActivity(new Intent(RegistrationActivity.this, MainActivity.class));
+            finish();
         }
-    }
-    private void init(){
-        auth = FirebaseAuth.getInstance();
     }
 
     private void showSignInWindow() {
@@ -131,6 +115,7 @@ public class RegistrationActivity extends AppCompatActivity {
                                         public void onComplete(@NonNull Task<AuthResult> task) {
                                             if (task.isSuccessful()) {
                                                 showToast("Успех!");
+                                                cUser = auth.getCurrentUser();
                                                 startActivity(new Intent(RegistrationActivity.this, MainActivity.class));
                                                 finish();
                                             }
@@ -196,7 +181,7 @@ public class RegistrationActivity extends AppCompatActivity {
                                         newUser.setName(name.getText().toString());
                                         newUser.setPassword(password.getText().toString());
                                         showToast("Пользователь добавлен");
-                                        mDataBase.push().setValue(newUser);
+                                        mDataBase.child(String.valueOf(auth.getUid())).setValue(newUser);
                                         startActivity(new Intent(RegistrationActivity.this, MainActivity.class));
                                         finish();
                                     }
@@ -247,5 +232,3 @@ public class RegistrationActivity extends AppCompatActivity {
     }
 
 }
-
-

@@ -27,7 +27,7 @@ public class MapActivity extends AppCompatActivity{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        MapKitFactory.setApiKey(MAPKIT_API_KEY);
+        MapKitFactory.setApiKey("d7fcc7b5-dee2-4dce-9f6a-cbb42cbb6fc0");
         MapKitFactory.initialize(this);
         setContentView(R.layout.maps_layout);
         super.onCreate(savedInstanceState);
