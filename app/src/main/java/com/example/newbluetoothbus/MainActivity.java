@@ -67,8 +67,10 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAnalytics mFirebaseAnalytics;
     BluetoothAdapter mBlueAdapter;
 
-    DatabaseReference rootRef = FirebaseDatabase.getInstance("https://newbluetoothbus-default-rtdb.firebaseio.com/").getReference();
+    DatabaseReference rootRef = FirebaseDatabase.getInstance
+            ("https://newbluetoothbus-default-rtdb.firebaseio.com/").getReference();
     DatabaseReference myRef = rootRef.child("Bus");
+
     DatabaseReference myRef2 = rootRef.child("Check");
 
     @Override
@@ -93,7 +95,6 @@ public class MainActivity extends AppCompatActivity {
         bluetoothAdapter = bluetoothManager.getAdapter();
 
         ConnectionsWindow = findViewById(R.id.Paired);
-        //ConnectionsWindow.setText(getResources().getString(R.string.busSearch));
         BPay = findViewById(R.id.Pay);
         BRefresh = findViewById(R.id.Refresh);
         BtnBT = findViewById(R.id.BtnBT);
@@ -146,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
                                 String bnumber = ds.getKey();
                                 Object bmac = ds.getValue();
                                 String bmacstring = String.valueOf(bmac);
-                                if (ConnectionsWindow.getText().toString().contains(bmacstring)) {
+                                if (ConnectionsWindow.getText().toString().contains(bnumber)) {
                                     if (cUser == auth.getCurrentUser()) {
                                         rootRef.child("Check")
                                                 .child(String.valueOf(auth.getUid()))
@@ -228,10 +229,13 @@ public class MainActivity extends AppCompatActivity {
                         String bnumber = ds.getKey();
                         Object bmac = ds.getValue();
                         String bmacstring = String.valueOf(bmac);
-                        //showToast("" + s);
-                        if (s.equals(bmacstring) && rssi < 100) {
-                            ConnectionsWindow.setTextSize(18);
-                            ConnectionsWindow.setText("Номер маршрута: " + bnumber + "\n" + "маршрут: " + bmacstring);
+
+                        Object busn = ds.child("busnum").getValue();
+                        Object busph = ds.child("phone").getValue();
+                        if (s.equals(String.valueOf(bnumber)) && rssi < 100) {
+                                ConnectionsWindow.setTextSize(18);
+                                ConnectionsWindow.setText("Номер маршрута: " + busn + "\n"
+                                        + "Телефон для оплаты: " + "\n" + busph);
                         }
                     }
                 }

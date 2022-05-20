@@ -29,7 +29,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 
 public class RegistrationActivity extends AppCompatActivity {
-    private Button BtnReg, BtnAuth, BtnEWA;
+    private Button BtnReg, BtnAuth;
     private FirebaseAuth auth;
     private FirebaseDatabase db;
     private DatabaseReference users;
@@ -196,16 +196,13 @@ public class RegistrationActivity extends AppCompatActivity {
                 }
             }
         });
-
         dialog.show();
-
     }
     private void showToast(String msg) {
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
     @Override
     public void onBackPressed() {
-        // super.onBackPressed();
         openQuitDialog();
     }
 
@@ -227,8 +224,6 @@ public class RegistrationActivity extends AppCompatActivity {
                 // TODO Auto-generated method stub
             }
         });
-
         quitDialog.show();
     }
-
 }
