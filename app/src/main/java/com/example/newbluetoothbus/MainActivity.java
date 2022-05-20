@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothLeScanner bluetoothLeScanner;
     private static final int PERMISSION_REQUEST_FINE_LOCATION = 2;
-    private String a;
+    private String s;
     private static final int REQUEST_ENABLE_BT = 0;
     private FirebaseAuth auth;
     private FirebaseUser cUser;
@@ -146,16 +146,15 @@ public class MainActivity extends AppCompatActivity {
                             for (DataSnapshot ds : dataSnapshot.getChildren()) {
                                 String bnumber = ds.getKey();
                                 Object bmac = ds.getValue();
-                                String bmacstring = String.valueOf(bmac);
-                                if (ConnectionsWindow.getText().toString().contains(bnumber)) {
+                                Object busn = ds.child("busnum").getValue();
+                                if (s.equals(bnumber)) {
                                     if (cUser == auth.getCurrentUser()) {
                                         rootRef.child("Check")
                                                 .child(String.valueOf(auth.getUid()))
-                                                .child(bnumber)
+                                                .child(String.valueOf(busn))
                                                 .child("Чек от " +dateText +", " +timeText )
                                                 .child("cost")
                                                 .setValue("33");
-
                                         bluetoothLeScanner.stopScan(scanCallback);
                                         ConnectionsWindow.setTextSize(24);
                                         ConnectionsWindow.setText("Маршрут");
@@ -220,7 +219,7 @@ public class MainActivity extends AppCompatActivity {
         public void onScanResult(int callbackType, ScanResult result) {
             super.onScanResult(callbackType, result);
             final BluetoothDevice device = result.getDevice();
-            final String s = device.getAddress();
+            s = device.getAddress();
             final int rssi = result.getRssi();
             ValueEventListener eventListener = new ValueEventListener() {
                 @Override
