@@ -8,7 +8,6 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
-import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -81,13 +80,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         final Animation animAlpha = AnimationUtils.loadAnimation(this, R.anim.alpha);
-        ScanSettings scanSettings = new ScanSettings.Builder()
-                .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
-                .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
-                .setMatchMode(ScanSettings.MATCH_MODE_AGGRESSIVE)
-                .setNumOfMatches(ScanSettings.MATCH_NUM_ONE_ADVERTISEMENT)
-                .setReportDelay(0L)
-                .build();
+//        ScanSettings scanSettings = new ScanSettings.Builder()
+//                .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+//                .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
+//                .setMatchMode(ScanSettings.MATCH_MODE_AGGRESSIVE)
+//                .setNumOfMatches(ScanSettings.MATCH_NUM_ONE_ADVERTISEMENT)
+//                .setReportDelay(0L)
+//                .build();
 
 
         mBlueAdapter = BluetoothAdapter.getDefaultAdapter();
