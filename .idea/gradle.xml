@@ -8,7 +8,7 @@
         <option name="distributionType" value="LOCAL" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="gradleHome" value="$APPLICATION_HOME_DIR$/gradle-7.4.1" />
-        <option name="gradleJvm" value="Android Studio default JDK" />
+        <option name="gradleJvm" value="openjdk-18" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
