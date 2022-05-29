@@ -37,6 +37,9 @@ public class RegistrationActivity extends AppCompatActivity {
     private ConstraintLayout root;
     private String USER_KEY = "User";
     FirebaseUser cUser;
+    DatabaseReference rootRef = FirebaseDatabase.getInstance
+            ("https://newbluetoothbus-default-rtdb.firebaseio.com/").getReference();
+    DatabaseReference nameRef = rootRef.child("User");
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -156,7 +159,7 @@ public class RegistrationActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 if(TextUtils.isEmpty(name.getText().toString())){
-                    showToast("Введите ваше имя");
+                    showToast("Введите ваш псевдоним");
                     return;
                 }
                 if(TextUtils.isEmpty(email.getText().toString())){
@@ -170,7 +173,7 @@ public class RegistrationActivity extends AppCompatActivity {
                     showToast("Пароль может состоять минимум из 5 символов");
                     return;
                 }
-                if(!TextUtils.isEmpty(email.getText().toString()) && !TextUtils.isEmpty(password.getText().toString())){
+                if(!TextUtils.isEmpty(email.getText().toString()) && !TextUtils.isEmpty(password.getText().toString()) && !TextUtils.isEmpty(name.getText().toString())){
                     auth.createUserWithEmailAndPassword(email.getText().toString(),password.getText().toString())
                             .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                                 @Override
@@ -180,6 +183,23 @@ public class RegistrationActivity extends AppCompatActivity {
                                         newUser.setEmail(email.getText().toString());
                                         newUser.setName(name.getText().toString());
                                         newUser.setPassword(password.getText().toString());
+//                                        ValueEventListener eventListener = new ValueEventListener() {
+//                                            @SuppressLint("MissingPermission")
+//                                            @Override
+//                                            public void onDataChange(DataSnapshot dataSnapshot) {
+//                                                for (DataSnapshot ds : dataSnapshot.getChildren()) {
+//                                                    Object uname = ds.child("name").getValue();
+//                                                    if((name.getText().toString()).equals(String.valueOf(uname))){
+//                                                        showToast("Данный псевдоним уже занят");
+//                                                        return;
+//                                                    }
+//                                                }
+//                                            }
+//                                            @Override
+//                                            public void onCancelled(DatabaseError databaseError) {
+//                                            }
+//                                        };
+//                                        nameRef.addListenerForSingleValueEvent(eventListener);
                                         showToast("Пользователь добавлен");
                                         mDataBase.child(String.valueOf(auth.getUid())).setValue(newUser);
                                         startActivity(new Intent(RegistrationActivity.this, MainActivity.class));

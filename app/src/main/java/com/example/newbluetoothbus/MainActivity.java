@@ -52,20 +52,20 @@ public class MainActivity extends AppCompatActivity {
     private boolean deviceFound = true;
     private BluetoothManager bluetoothManager;
     private BluetoothAdapter bluetoothAdapter;
-    private LocationManager location;
+    BluetoothAdapter mBlueAdapter;
+    private LocationManager locationManager;
+    public static boolean geolocationEnabled = false;
     private BluetoothLeScanner bluetoothLeScanner;
     private String s;
     private static final int REQUEST_ENABLE_BT = 0;
     private FirebaseAuth auth;
     private FirebaseUser cUser;
     private FirebaseStorage storage;
+    private FirebaseAnalytics mFirebaseAnalytics;
     private StorageReference storageReference;
     TextView ConnectionsWindow;
     Button BPay;
-    int x = 0;
     ImageButton BRefresh, BtnBT, BtnMap, BtnCard;
-    private FirebaseAnalytics mFirebaseAnalytics;
-    BluetoothAdapter mBlueAdapter;
 
     DatabaseReference rootRef = FirebaseDatabase.getInstance
             ("https://newbluetoothbus-default-rtdb.firebaseio.com/").getReference();
@@ -81,10 +81,13 @@ public class MainActivity extends AppCompatActivity {
         storageReference = storage.getReference();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         final Animation animAlpha = AnimationUtils.loadAnimation(this, R.anim.alpha);
+
         mBlueAdapter = BluetoothAdapter.getDefaultAdapter();
         bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         bluetoothAdapter = bluetoothManager.getAdapter();
+        bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
 
         ConnectionsWindow = findViewById(R.id.Paired);
         BPay = findViewById(R.id.Pay);
@@ -92,10 +95,6 @@ public class MainActivity extends AppCompatActivity {
         BtnBT = findViewById(R.id.BtnBT);
         BtnMap = findViewById(R.id.BtnMap);
         BtnCard = findViewById(R.id.BtnCard);
-
-
-
-        bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
 
         BtnCard.setOnClickListener(new OnClickListener() {
             @Override
@@ -139,17 +138,13 @@ public class MainActivity extends AppCompatActivity {
                                                     .child(String.valueOf(auth.getUid()))
                                                     .child(String.valueOf(busn))
                                                     .child("Чек от " + dateText + ", " + timeText)
-                                                    .child("cost")
-                                                    .setValue("33");
-                                            ConnectionsWindow.setTextSize(24);
-                                            ConnectionsWindow.setText("Маршрут");
-                                            bluetoothLeScanner.stopScan(scanCallback);
+                                                    .child("33")
+                                                    .setValue("cost");
                                             openPayBuilder();
                                     }
                                 }
                             }
                         }
-
                         @Override
                         public void onCancelled(DatabaseError databaseError) {
                         }
@@ -172,6 +167,8 @@ public class MainActivity extends AppCompatActivity {
                         ConnectionsWindow.setText("Маршрут");
                     }
                 } else {
+                    ConnectionsWindow.setTextSize(24);
+                    ConnectionsWindow.setText("Маршрут");
                     showToast("Включите Bluetooth");
                 }
             }
@@ -213,23 +210,15 @@ public class MainActivity extends AppCompatActivity {
                     for (DataSnapshot ds : dataSnapshot.getChildren()) {
                         String bnumber = ds.getKey();
                         Object bmac = ds.getValue();
-                        String bmacstring = String.valueOf(bmac);
-
                         Object busn = ds.child("busnum").getValue();
                         Object busph = ds.child("phone").getValue();
-                        if(!deviceFound) {
-                            ConnectionsWindow.setTextSize(24);
-                            ConnectionsWindow.setText("Маршрут");
-                            }else{
-                                if(s.equals(String.valueOf(bnumber))) {
-                                    ConnectionsWindow.setTextSize(18);
-                                    ConnectionsWindow.setText("Номер маршрута: " + busn + "\n"
-                                            + "Телефон для оплаты: " + "\n" + busph);
-                            }
+                        if(s.equals(String.valueOf(bnumber)) && rssi < 70) {
+                            ConnectionsWindow.setTextSize(18);
+                            ConnectionsWindow.setText("Номер маршрута: " + busn + "\n"
+                                    + "Телефон для оплаты: " + "\n" + busph);
                         }
                     }
                 }
-
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
                 }
@@ -248,9 +237,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == 0) {
-            rootRef.child("User")
+            rootRef.child("History_requests")
                     .child(String.valueOf(cUser.getUid()))
-                    .child("historyRequest")
                     .setValue("1");
             showToast("Чеки были высланы на почту");
         }
@@ -269,14 +257,12 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog.Builder quitDialog = new AlertDialog.Builder(
                 MainActivity.this);
         quitDialog.setTitle("Вы уверены, что хотите выйти?");
-
         quitDialog.setPositiveButton("Да", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 finish();
             }
         });
-
         quitDialog.setNegativeButton("Нет", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -301,7 +287,6 @@ public class MainActivity extends AppCompatActivity {
         quitFADialog.setNegativeButton("Нет", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-
             }
         });
         quitFADialog.show();
@@ -321,6 +306,7 @@ public class MainActivity extends AppCompatActivity {
                 overridePendingTransition(0, 0);
             }
         });
+
         paymentDialog.setNegativeButton("Показать чек", new DialogInterface.OnClickListener() {
             @SuppressLint("MissingPermission")
             @Override
@@ -355,9 +341,17 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+    public boolean isGeoDisabled() {
+        LocationManager mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        boolean mIsGPSEnabled = mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        boolean mIsNetworkEnabled = mLocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        boolean mIsGeoDisabled = !mIsGPSEnabled && !mIsNetworkEnabled;
+        return mIsGeoDisabled;
+    }
     private void showToast(String msg) {
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
+
     @SuppressLint("MissingPermission")
     protected void onStart() {
         super.onStart();
@@ -366,6 +360,14 @@ public class MainActivity extends AppCompatActivity {
             bluetoothLeScanner.startScan(scanCallback);
         } else {
             showToast("Включите Bluetooth");
+        }
+    }
+    protected  void onResume(){
+        super.onResume();
+        isGeoDisabled();
+        if(isGeoDisabled()){
+            showToast("Пожалуйста, включите геолокацию");
+            startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
         }
     }
 }
