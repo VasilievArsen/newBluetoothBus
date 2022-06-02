@@ -173,7 +173,8 @@ public class RegistrationActivity extends AppCompatActivity {
                     showToast("Пароль может состоять минимум из 5 символов");
                     return;
                 }
-                if(!TextUtils.isEmpty(email.getText().toString()) && !TextUtils.isEmpty(password.getText().toString()) && !TextUtils.isEmpty(name.getText().toString())){
+                if(!TextUtils.isEmpty(email.getText().toString()) && !TextUtils.isEmpty(password.getText().toString())
+                        && !TextUtils.isEmpty(name.getText().toString())){
                     auth.createUserWithEmailAndPassword(email.getText().toString(),password.getText().toString())
                             .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                                 @Override

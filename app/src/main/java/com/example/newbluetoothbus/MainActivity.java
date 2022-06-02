@@ -140,7 +140,8 @@ public class MainActivity extends AppCompatActivity {
                                                     .child("Чек от " + dateText + ", " + timeText)
                                                     .child("33")
                                                     .setValue("cost");
-                                            openPayBuilder();
+                                        bluetoothLeScanner.stopScan(scanCallback);
+                                        openPayBuilder();
                                     }
                                 }
                             }
@@ -150,6 +151,8 @@ public class MainActivity extends AppCompatActivity {
                         }
                     };
                     myRef.addListenerForSingleValueEvent(eventListener);
+                }else{
+                    showToast("Включите bluetooth");
                 }
             }
         });
