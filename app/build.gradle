@@ -54,4 +54,5 @@ dependencies {
     implementation 'junit:junit:4.13.2'
     implementation 'com.github.fevziomurtekin:PayView:1.0.3'
     implementation 'com.craftman.cardform:cardform:0.0.2'
+    implementation 'com.braintreepayments:card-form:5.4.0'
 }

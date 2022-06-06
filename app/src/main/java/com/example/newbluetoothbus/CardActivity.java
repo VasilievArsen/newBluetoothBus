@@ -23,17 +23,16 @@ public class CardActivity extends AppCompatActivity {
         CardForm cardForm = findViewById(R.id.cardform);
         TextView txtDes = findViewById(com.craftman.cardform.R.id.payment_amount);
         Button btnPay = findViewById(com.craftman.cardform.R.id.btn_pay);
-        //TextView cardName = findViewById(com.craftman.cardform.R.id.card_name);
         TextView txt = findViewById(com.craftman.cardform.R.id.payment_amount_holder);
         txt.setText("Добавление карты");
-        //cardName.setText("Имя, фамилия");
         txtDes.setText("");
         btnPay.setText("Подтвердить");
 
         cardForm.setPayBtnClickListner(new OnPayBtnClickListner() {
             @Override
             public void onClick(Card card) {
-                Toast.makeText(CardActivity.this, "Name : " + card.getName()+" | Last 4 digits: " + card.getLast4(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(CardActivity.this, "Name : " + card.getName()+
+                        " | Last 4 digits: " + card.getLast4(), Toast.LENGTH_SHORT).show();
             }
         });
     }

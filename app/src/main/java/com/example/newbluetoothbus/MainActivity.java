@@ -72,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
     DatabaseReference myRef = rootRef.child("Bus");
     DatabaseReference UserRef = rootRef.child("User");
 
+    @SuppressLint("MissingPermission")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
@@ -84,9 +85,15 @@ public class MainActivity extends AppCompatActivity {
 
         final Animation animAlpha = AnimationUtils.loadAnimation(this, R.anim.alpha);
 
-        mBlueAdapter = BluetoothAdapter.getDefaultAdapter();
         bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         bluetoothAdapter = bluetoothManager.getAdapter();
+        
+        if(bluetoothAdapter == null || !bluetoothAdapter.isEnabled()){
+            Intent enableBT = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBT, 0);
+        }
+        
+        mBlueAdapter = BluetoothAdapter.getDefaultAdapter();
         bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
 
         ConnectionsWindow = findViewById(R.id.Paired);
@@ -132,16 +139,18 @@ public class MainActivity extends AppCompatActivity {
                                 String bnumber = ds.getKey();
                                 Object bmac = ds.getValue();
                                 Object busn = ds.child("busnum").getValue();
-                                if(s.equals(bnumber)) {
-                                    if (cUser == auth.getCurrentUser()) {
-                                        rootRef.child("Check")
+                                if (bnumber != null) {
+                                    if ( s != null && s.equals(bnumber) && ConnectionsWindow != null) {
+                                        if (cUser == auth.getCurrentUser()) {
+                                            rootRef.child("Check")
                                                     .child(String.valueOf(auth.getUid()))
                                                     .child(String.valueOf(busn))
                                                     .child("Чек от " + dateText + ", " + timeText)
                                                     .child("33")
                                                     .setValue("cost");
-                                        bluetoothLeScanner.stopScan(scanCallback);
-                                        openPayBuilder();
+                                            bluetoothLeScanner.stopScan(scanCallback);
+                                            openPayBuilder();
+                                        }
                                     }
                                 }
                             }
@@ -165,6 +174,7 @@ public class MainActivity extends AppCompatActivity {
                 if (mBlueAdapter.isEnabled()) {
                     bluetoothLeScanner = mBlueAdapter.getBluetoothLeScanner();
                     bluetoothLeScanner.startScan(scanCallback);
+                    deviceFound = false;
                     if(!deviceFound){
                         ConnectionsWindow.setTextSize(24);
                         ConnectionsWindow.setText("Маршрут");
@@ -358,17 +368,14 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("MissingPermission")
     protected void onStart() {
         super.onStart();
-        if (mBlueAdapter.isEnabled()) {
-            bluetoothLeScanner = mBlueAdapter.getBluetoothLeScanner();
-            bluetoothLeScanner.startScan(scanCallback);
-        } else {
-            showToast("Включите Bluetooth");
-        }
-    }
-    protected  void onResume(){
-        super.onResume();
-        isGeoDisabled();
-        if(isGeoDisabled()){
+        if(!isGeoDisabled()){
+            if (mBlueAdapter.isEnabled()) {
+                bluetoothLeScanner = mBlueAdapter.getBluetoothLeScanner();
+                bluetoothLeScanner.startScan(scanCallback);
+            } else {
+                showToast("Включите Bluetooth");
+            }
+        }else{
             showToast("Пожалуйста, включите геолокацию");
             startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
         }
