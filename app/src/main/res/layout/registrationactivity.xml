@@ -14,24 +14,27 @@
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="144dp"
+        android:layout_marginTop="30dp"
         android:layout_marginEnd="144dp"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="15dp"
         android:background="@drawable/windowforreg"
         android:text="Регистрация"
         android:textColor="@color/FarawaySky"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/BtnAuth"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.506"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintHorizontal_bias="0.493"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView2" />
 
     <Button
         android:id="@+id/BtnAuth"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="144dp"
+        android:layout_marginTop="5dp"
         android:layout_marginEnd="144dp"
-        android:layout_marginBottom="224dp"
+        android:layout_marginBottom="200dp"
         android:background="@drawable/windowforreg"
         android:text="Аутентификация"
         android:textColor="@color/FarawaySky"
@@ -39,7 +42,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.493"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/BtnReg" />
 
     <ImageView
         android:id="@+id/imageView2"
@@ -57,6 +61,7 @@
         android:scaleType="fitCenter"
         app:layout_constraintBottom_toBottomOf="@+id/imageView2"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:srcCompat="@drawable/ic_key"
         app:tint="@color/backgroundbtn" />
